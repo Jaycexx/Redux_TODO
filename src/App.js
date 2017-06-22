@@ -1,5 +1,4 @@
-import React, { Component } from 'react';
-import store from './stores/TodoStore.js';
+import React, { Component, PropTypes } from 'react';
 
 let todoId = 0;
 
@@ -38,8 +37,10 @@ const TodoList = ({
     </ul> 
 );
 class VisibleTodoList extends Component {
+
   //没有props和state的改变来触发组件更新，因此需要subscribe forceUpdate
   componentDidMount() {
+    const { store } = this.context;
     this.unsubscribe = store.subscribe(() => {
       this.forceUpdate();
     });
@@ -64,7 +65,8 @@ class VisibleTodoList extends Component {
   }
 
   render() {
-
+    const { store } = this.context;
+    console.log(this.context);
     const {todos, visibilityFilter} = store.getState();
     const visibleTodos = this.getVisibleTodos(todos, visibilityFilter);
 
@@ -81,26 +83,34 @@ class VisibleTodoList extends Component {
   }
 }
 
-class AddTodo extends Component {
-  render() {
-    return (
-      <div>
-        <input 
-          type="text" 
-          ref={ node => { this.input = node; } } />
-        <button onClick={ () => {
-          store.dispatch({
-            type: 'ADD_TODO',
-            text: this.input.value,
-            id: todoId++
-          })
-          this.input.value = '';
-        } }>
-          add Todo
-        </button>
-      </div>
-    );
-  }
+VisibleTodoList.contextTypes = {
+  store: PropTypes.object
+}
+
+function AddTodo(props, { store }) {
+  let input;
+
+  return (
+    <div>
+      <input 
+        type="text" 
+        ref={ node => { input = node; } } />
+      <button onClick={ () => {
+        store.dispatch({
+          type: 'ADD_TODO',
+          text: input.value,
+          id: todoId++
+        })
+        input.value = '';
+      } }>
+        add Todo
+      </button>
+    </div>
+  );
+}
+
+AddTodo.contextTypes = {
+  store: PropTypes.object
 }
 
 //pure component @param [props.., children]
@@ -128,6 +138,7 @@ const Link = (
 class FilterLink extends Component {
   //没有props和state的改变来触发组件更新，因此需要subscribe forceUpdate
   componentDidMount() {
+    const { store } = this.context;
     this.unsubscribe = store.subscribe(() => {
       this.forceUpdate();
     });
@@ -136,6 +147,7 @@ class FilterLink extends Component {
     this.unsubscribe();
   }
   render() {  
+    const { store } = this.context;
     const filter = this.props.filter;
     const currentFilter = store.getState().visibilityFilter;
 
@@ -152,6 +164,10 @@ class FilterLink extends Component {
       </Link>
     );
   }
+}
+
+FilterLink.contextTypes = {
+  store: PropTypes.object
 }
 
 const Footer = () => (
