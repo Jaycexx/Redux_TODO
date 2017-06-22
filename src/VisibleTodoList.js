@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
+import { toggleTodo } from './actions/TodoActions';
 
 //return多行元素可以要用括号括起来
 const Todo = ({
@@ -42,10 +43,9 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return  {
     onTodoClick: id => {
-      dispatch({
-        type: 'TOGGLE_TODO',
-        id
-      })
+      dispatch(
+        toggleTodo(id)
+      )
     }
   }
 }
