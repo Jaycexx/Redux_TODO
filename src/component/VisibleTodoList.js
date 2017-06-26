@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { toggleTodo } from './actions/TodoActions';
+import { toggleTodo } from '../actions/TodoActions';
 
 //return多行元素可以要用括号括起来
 const Todo = ({
@@ -34,21 +34,17 @@ const TodoList = ({
     </ul> 
 );
 
-function mapStateToProps(state) {
-  return {
+const mapStateToProps = (state) => ({
     todos: getVisibleTodos(state.todos, state.visibilityFilter)
-  }
-}
+});
 
-function mapDispatchToProps(dispatch) {
-  return  {
-    onTodoClick: id => {
+const mapDispatchToProps = (dispatch) => ({
+    onTodoClick(id) {
       dispatch(
         toggleTodo(id)
       )
     }
-  }
-}
+});
 
 function getVisibleTodos(todos, filter) {
   switch(filter) {

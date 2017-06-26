@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import { addTodo } from './actions/TodoActions';
+import { addTodo } from '../actions/TodoActions';
 
 let todoId = 0;
 

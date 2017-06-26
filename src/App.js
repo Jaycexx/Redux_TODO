@@ -1,8 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
-import VisibleTodoList from './VisibleTodoList';
-import AddTodo from './AddTodo';
-import FilterLink from './FilterLink';
+import VisibleTodoList from './component/VisibleTodoList';
+import AddTodo from './component/AddTodo';
+import FilterLink from './component/FilterLink';
 
 const Footer = () => (
   <p>
