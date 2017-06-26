@@ -1,5 +1,6 @@
 import { combineReducers, createStore } from 'redux';
-
+import { loadState, saveState } from '../localStorage';
+import { throttle } from 'lodash';
 //多个reducer的场景
 const todo = (state, action) => {
   switch (action.type) {
@@ -56,14 +57,15 @@ const todoApp = combineReducers({
   todos,
   visibilityFilter,
 });
-const initialState = {
-  todos: [{
-    id: -1,
-    text: 'Welcome Todo!',
-    complete: false,
-  }],
-  visibilityFilter: undefined
-}
+const initialState = loadState();
+console.log('initialState', initialState);
 const store = createStore(todoApp, initialState);
+
+store.subscribe(throttle(() => {
+  console.log('save state');
+  saveState({
+    todos: store.getState().todos
+  });
+}, 1000));
 
 export default store;

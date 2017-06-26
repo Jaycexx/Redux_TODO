@@ -1,11 +1,10 @@
 import {ADD_TODO, TOGGLE_TODO, SET_VISIBILITY_FILTER} from '../constants/ActionTypes';
-
-let todoId = 0;
+import v4 from 'uuid/v4';
 
 export const addTodo = (text) => ({
     type: ADD_TODO,
     text: text,
-    id: todoId++
+    id: v4()
 });
 
 export const toggleTodo = (id) => ({
