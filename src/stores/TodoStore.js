@@ -2,9 +2,13 @@ import { combineReducers, createStore } from 'redux';
 import { loadState, saveState } from '../localStorage';
 import { throttle } from 'lodash';
 import todo from './todo';
+import { fetchTodos } from '../fakeBackend';
+
+
+fetchTodos('all').then(todos => {
+  console.log('from fake:', todos);
+})
 //多个reducer的场景
-
-
 // selectors
 const getAllTodos = (state) => state.allIds.map(id => state.byId[id]);
 
@@ -54,11 +58,11 @@ const configureStore = () => {
     byId,
     allIds,
   });
-
+  
   const initialState = loadState();
   console.log('initialState', initialState);
   const store = createStore(todoApp, initialState);
-// js是在Nodejs环境里面编译再输出到浏览器，所以可以访问process对象
+  // js是在Nodejs环境里面编译再输出到浏览器，所以可以访问process对象
   if (process.env.NODE_ENV !== 'production') {
     console.log('process:', process);
     store.dispatch = addLoggingToDispatch(store);
