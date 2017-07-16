@@ -1,61 +1,39 @@
 import { combineReducers, createStore } from 'redux';
 import { loadState, saveState } from '../localStorage';
 import { throttle } from 'lodash';
+import todo from './todo';
 //多个reducer的场景
-const todo = (state, action) => {
-  switch (action.type) {
-    case 'ADD_TODO': 
-      return {
-          id: action.id,
-          text: action.text,
-          complete: false,
-        };
-    case 'TOGGLE_TODO': 
-        if(state.id === action.id) {
-          return {
-            ...state,
-            complete: !state.complete,
-          };
-        }
-        return state;
-    default: 
-      return state;
-  }
-}
-// todos operation reducer
-const todos = (state = [], action) => {
-  switch (action.type) {
-    case 'ADD_TODO': 
-      console.log('ADD_TODO');
-      return [
-        ...state, 
-        todo(undefined, action)
-      ];
-    case 'TOGGLE_TODO': 
-      console.log('TOGGLE_TODO');
-      return state.map( t => todo(t, action));
-    default: 
-      return state;
-  }
-};
-//visibilityFilter reducer
-const visibilityFilter = (
-  state = 'SHOW_ALL',
-  action
-) => {
+
+
+// selectors
+const getAllTodos = (state) => state.allIds.map(id => state.byId[id]);
+
+// 操作所有todos
+const byId = (state = {}, action) => {
   switch(action.type) {
-    case 'SET_VISIBILITY_FILTER':
-      console.log('SET_VISIBILITY_FILTER');
-      return action.filter;
+    case 'ADD_TODO':
+    case 'TOGGLE_TODO':
+      return {
+        ...state,
+        [action.id]: todo(state[action.id], action)
+      };
     default:
       return state;
   }
 }
-
+// 操作所有的todos id
+const allIds = (state = [], action) => {
+  switch(action.type) {
+    case 'ADD_TODO':
+      return [...state, action.id];
+    default:
+      return state;
+  };
+};
 
 const todoApp = combineReducers({
-  todos,
-  visibilityFilter,
+  byId,
+  allIds,
 });
 const initialState = loadState();
 console.log('initialState', initialState);
@@ -69,3 +47,17 @@ store.subscribe(throttle(() => {
 }, 1000));
 
 export default store;
+export const getVisibleTodos = (state, filter) => {
+  const todos = getAllTodos(state);
+  console.log('filter:', filter);
+  switch(filter) {
+    case 'all':
+      return todos;
+    case 'active':
+      return todos.filter(todo => !todo.complete);
+    case 'completed':
+      return todos.filter(todo => todo.complete);
+    default:
+      throw new Error(`Unknown filter: ${filter}`);
+  }
+};;
