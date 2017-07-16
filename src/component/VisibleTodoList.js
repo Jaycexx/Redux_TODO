@@ -17,7 +17,7 @@ const Todo = ({
     >
       {text}
     </li> 
-)
+);
 
 const TodoList = ({
   todos,

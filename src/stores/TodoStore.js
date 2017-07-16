@@ -8,9 +8,9 @@ import todo from './todo';
 // selectors
 const getAllTodos = (state) => state.allIds.map(id => state.byId[id]);
 
-// 操作所有todos
+// [reducer]操作所有todos
 const byId = (state = {}, action) => {
-  switch(action.type) {
+  switch (action.type) {
     case 'ADD_TODO':
     case 'TOGGLE_TODO':
       return {
@@ -21,36 +21,66 @@ const byId = (state = {}, action) => {
       return state;
   }
 }
-// 操作所有的todos id
+// [reducer]操作所有的todos id
 const allIds = (state = [], action) => {
-  switch(action.type) {
+  switch (action.type) {
     case 'ADD_TODO':
       return [...state, action.id];
     default:
       return state;
   };
 };
+// 重写action方法
+const addLoggingToDispatch = (store) => {
+  const oriDispatch = store.dispatch;
+  if (!console.group) {
+    return oriDispatch;
+  }
+  return (action) => {
+    console.group(action.type);
+    // chrome console api可以设置输出的样式
+    console.log('%c prev state', 'color: gray', store.getState());
+    console.log('%c action', 'color: blue', action);
+    const retValue = oriDispatch(action);
+    console.log('%c next state', 'color: green', store.getState());
+    console.groupEnd(action.type);
+    return retValue;
+  };
+}
 
-const todoApp = combineReducers({
-  byId,
-  allIds,
-});
-const initialState = loadState();
-console.log('initialState', initialState);
-const store = createStore(todoApp, initialState);
+const configureStore = () => {
 
-store.subscribe(throttle(() => {
-  console.log('save state');
-  saveState({
-    todos: store.getState().todos
+  const todoApp = combineReducers({
+    byId,
+    allIds,
   });
-}, 1000));
+
+  const initialState = loadState();
+  console.log('initialState', initialState);
+  const store = createStore(todoApp, initialState);
+// js是在Nodejs环境里面编译再输出到浏览器，所以可以访问process对象
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('process:', process);
+    store.dispatch = addLoggingToDispatch(store);
+  }
+
+  store.subscribe(throttle(() => {
+    console.log('save state');
+    saveState(store.getState());
+  }, 1000));
+
+  return store;
+}
+
+const store = configureStore();
+
 
 export default store;
+
 export const getVisibleTodos = (state, filter) => {
   const todos = getAllTodos(state);
   console.log('filter:', filter);
-  switch(filter) {
+  switch (filter) {
     case 'all':
       return todos;
     case 'active':
