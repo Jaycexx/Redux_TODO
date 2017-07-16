@@ -1,6 +1,7 @@
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { toggleTodo } from '../actions/TodoActions';
+import { withRouter } from 'react-router-dom';
 
 //return多行元素可以要用括号括起来
 const Todo = ({
@@ -34,8 +35,8 @@ const TodoList = ({
     </ul> 
 );
 
-const mapStateToProps = (state) => ({
-    todos: getVisibleTodos(state.todos, state.visibilityFilter)
+const mapStateToProps = (state, { location }) => ({
+    todos: getVisibleTodos(state.todos, location.pathname.slice(1) || 'all')
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -47,18 +48,21 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 function getVisibleTodos(todos, filter) {
+  console.log('filter:', filter);
   switch(filter) {
-    case 'SHOW_ALL':
+    case 'all':
       return todos;
-    case 'SHOW_ACTIVE':
+    case 'active':
       return todos.filter(todo => !todo.complete);
-    case 'SHOW_COMPLETED':
+    case 'completed':
       return todos.filter(todo => todo.complete);
+    default:
+      throw new Error(`Unknown filter: ${filter}`);
   }
 }
-const VisibleTodoList = connect(
+const VisibleTodoList = withRouter(connect(
   mapStateToProps,
   mapDispatchToProps
-)(TodoList)
+)(TodoList));
 
 export default VisibleTodoList;

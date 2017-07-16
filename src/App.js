@@ -1,48 +1,14 @@
-import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
 import VisibleTodoList from './component/VisibleTodoList';
 import AddTodo from './component/AddTodo';
-import FilterLink from './component/FilterLink';
+import Footer from './component/Footer'
 
-const Footer = () => (
-  <p>
-    show: 
-      <FilterLink 
-        filter="SHOW_ALL" >
-          All
-      </FilterLink>
-      {', '}
-      <FilterLink 
-        filter="SHOW_ACTIVE" >
-          Active
-      </FilterLink>
-      {', '}
-      <FilterLink 
-        filter="SHOW_COMPLETED" >
-          Completed
-      </FilterLink>
-  </p>
+const TodoApp = () => (
+  <div>
+    <AddTodo />
+    <VisibleTodoList />
+    <Footer />
+  </div>
 );
 
-
-
-class TodoApp extends Component {
-
-  constructor(props) {
-    super(props);
-  } 
-
-  render() {
-
-    return (
-      <div>
-        <AddTodo />
-        <VisibleTodoList />
-        <Footer />
-      </div>
-    );
-  }
-  
-}
-
-export default TodoApp; 
+export default TodoApp;
