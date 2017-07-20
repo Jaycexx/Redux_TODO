@@ -1,5 +1,10 @@
-import {ADD_TODO, TOGGLE_TODO, SET_VISIBILITY_FILTER} from '../constants/ActionTypes';
+import {ADD_TODO, TOGGLE_TODO, SET_VISIBILITY_FILTER, RECEIVE_TODO} from '../constants/ActionTypes';
 import v4 from 'uuid/v4';
+
+export const receiveTodo = (filter) => ({
+    type: RECEIVE_TODO,
+    filter
+});
 
 export const addTodo = (text) => ({
     type: ADD_TODO,

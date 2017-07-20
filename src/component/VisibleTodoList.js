@@ -1,56 +1,52 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { toggleTodo } from '../actions/TodoActions';
+import * as actions from '../actions/TodoActions';
 import { withRouter } from 'react-router-dom';
 import { getVisibleTodos } from '../stores/TodoStore.js';
+import TodoList from './TodoList';
+import { fetchTodos } from '../fakeBackend'
 //return多行元素可以要用括号括起来
-const Todo = ({
-  onClick,
-  complete,
-  text
-}) => (
-   <li  
-    onClick={onClick}
-    style={{
-          textDecoration: complete ? 'line-through' : 'none'
-         }}
-    >
-      {text}
-    </li> 
-);
 
-const TodoList = ({
-  todos,
-  onTodoClick,
-}) => (
-    <ul>
-      {todos.map(todo => (
-         <Todo 
-          key={todo.id}
-          {...todo}
-          onClick={() => {
-            onTodoClick(todo.id)
-          }} />
-      ))}
-    </ul> 
-);
+class VisibleTodoList extends Component {
+  componentDidMount() {
+    this.getTodos();
+  }
 
-const mapStateToProps = (state, { location }) => ({
-    todos: getVisibleTodos(state, location.pathname.slice(1) || 'all')
-});
-
-const mapDispatchToProps = (dispatch) => ({
-    onTodoClick(id) {
-      dispatch(
-        toggleTodo(id)
-      )
+  componentDidUpdate(prevProps) {
+    if (this.props.filter !== prevProps.filter) {
+      this.getTodos();
     }
-});
+  }
+
+  getTodos() {
+    const { filter, receiveTodo } = this.props;
+    fetchTodos(filter).then(todos => {
+      receiveTodo(filter, todos);
+    });
+  }
+
+  render() {
+    const { toggleTodo, ...rest } = this.props;
+    return <TodoList {...rest} onTodoClick={toggleTodo} />
+  }
+}
+
+const mapStateToProps = (state, { location }) => {
+  const filter = location.pathname.slice(1) || 'all';
+  return {
+    todos: getVisibleTodos(state, filter),
+    filter
+  }
+};
+// 自动封装了diapatch的action
+// const mapDispatchToProps = (dispatch) => ({
+//   ...actions
+// });
 
 
-const VisibleTodoList = withRouter(connect(
+VisibleTodoList = withRouter(connect(
   mapStateToProps,
-  mapDispatchToProps
-)(TodoList));
+  actions
+)(VisibleTodoList));
 
 export default VisibleTodoList;
