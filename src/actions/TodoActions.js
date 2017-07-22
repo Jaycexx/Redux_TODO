@@ -1,10 +1,17 @@
-import {ADD_TODO, TOGGLE_TODO, SET_VISIBILITY_FILTER, RECEIVE_TODO} from '../constants/ActionTypes';
+import { ADD_TODO, TOGGLE_TODO, SET_VISIBILITY_FILTER, RECEIVE_TODO } from '../constants/ActionTypes';
 import v4 from 'uuid/v4';
+import * as api from '../fakeBackend'
 
-export const receiveTodo = (filter) => ({
+
+export const receiveTodo = (filter, reponse) => ({
     type: RECEIVE_TODO,
-    filter
+    filter,
+    reponse,
 });
+
+export const fetchTodos = (filter) =>
+    api.fetchTodos(filter).then(todos => receiveTodo(filter, todos));
+
 
 export const addTodo = (text) => ({
     type: ADD_TODO,

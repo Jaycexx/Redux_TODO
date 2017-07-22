@@ -4,7 +4,6 @@ import * as actions from '../actions/TodoActions';
 import { withRouter } from 'react-router-dom';
 import { getVisibleTodos } from '../stores/TodoStore.js';
 import TodoList from './TodoList';
-import { fetchTodos } from '../fakeBackend'
 //return多行元素可以要用括号括起来
 
 class VisibleTodoList extends Component {
@@ -19,10 +18,8 @@ class VisibleTodoList extends Component {
   }
 
   getTodos() {
-    const { filter, receiveTodo } = this.props;
-    fetchTodos(filter).then(todos => {
-      receiveTodo(filter, todos);
-    });
+    const { filter, fetchTodos } = this.props;
+    fetchTodos(filter)
   }
 
   render() {

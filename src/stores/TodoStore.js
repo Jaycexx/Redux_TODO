@@ -1,13 +1,10 @@
-import { combineReducers, createStore } from 'redux';
+import { combineReducers, createStore, applyMiddleware } from 'redux';
 import { loadState, saveState } from '../localStorage';
 import { throttle } from 'lodash';
 import todo from './todo';
-import { fetchTodos } from '../fakeBackend';
 
 
-fetchTodos('all').then(todos => {
-  console.log('from fake:', todos);
-})
+
 //多个reducer的场景
 // selectors
 const getAllTodos = (state) => state.allIds.map(id => state.byId[id]);
@@ -34,22 +31,30 @@ const allIds = (state = [], action) => {
       return state;
   };
 };
-// 重写action方法
-const addLoggingToDispatch = (store) => {
-  const oriDispatch = store.dispatch;
+// @middleware
+const addLoggingToDispatch = store => next => {
   if (!console.group) {
-    return oriDispatch;
+    return next;
   }
   return (action) => {
     console.group(action.type);
     // chrome console api可以设置输出的样式
     console.log('%c prev state', 'color: gray', store.getState());
     console.log('%c action', 'color: blue', action);
-    const retValue = oriDispatch(action);
+    const retValue = next(action);
     console.log('%c next state', 'color: green', store.getState());
     console.groupEnd(action.type);
     return retValue;
   };
+}
+
+const addPromiseSupport = store => next => {
+  return action => {
+    if(typeof action.then === 'function') {
+      return action.then(next);
+    }
+    return next(action);
+  }
 }
 
 const configureStore = () => {
@@ -61,15 +66,23 @@ const configureStore = () => {
   
   const initialState = loadState();
   console.log('initialState', initialState);
-  const store = createStore(todoApp, initialState);
+  const store = createStore(
+    todoApp, 
+    initialState,
+    applyMiddleware(
+      addPromiseSupport,
+      addLoggingToDispatch,
+    )
+  );
   // js是在Nodejs环境里面编译再输出到浏览器，所以可以访问process对象
-  if (process.env.NODE_ENV !== 'production') {
-    console.log('process:', process);
-    store.dispatch = addLoggingToDispatch(store);
-  }
+  // if (process.env.NODE_ENV !== 'production') {
+  //   console.log('process:', process);
+  //   store.dispatch = addLoggingToDispatch(store);
+  // }
+
+  // store.dispatch = addPromiseSupport(store);
 
   store.subscribe(throttle(() => {
-    console.log('save state');
     saveState(store.getState());
   }, 1000));
 
