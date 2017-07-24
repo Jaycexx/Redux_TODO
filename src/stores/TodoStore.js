@@ -74,13 +74,6 @@ const configureStore = () => {
       addLoggingToDispatch,
     )
   );
-  // js是在Nodejs环境里面编译再输出到浏览器，所以可以访问process对象
-  // if (process.env.NODE_ENV !== 'production') {
-  //   console.log('process:', process);
-  //   store.dispatch = addLoggingToDispatch(store);
-  // }
-
-  // store.dispatch = addPromiseSupport(store);
 
   store.subscribe(throttle(() => {
     saveState(store.getState());
